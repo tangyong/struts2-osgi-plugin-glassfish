@@ -15,6 +15,10 @@ As a convenient, I will upload structs 2.3.1(struts2 OSGi plugin's source is inc
 
 2 glassfish v4 trunk
 
+1) trunk url: https://svn.java.net/svn/glassfish~svn/trunk/main
+
+2) building steps: https://wikis.oracle.com/display/GlassFish/FullBuildInstructions
+
 3 Struts2OSGi demo
 
 The demo is from http://code.google.com/p/class-reloading-test/ 
