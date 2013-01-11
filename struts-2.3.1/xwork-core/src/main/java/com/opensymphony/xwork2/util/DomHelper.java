@@ -110,6 +110,12 @@ public class DomHelper {
         ContentHandler locationHandler = new LocationAttributes.Pipe(builder);
         
         try {
+        	//Tang Yong Added in order to prevent dtd validation while I am behind a proxy server
+        	final XMLReader xmlReader = parser.getXMLReader();
+        	// Ignore the DTD declaration
+        	xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        	xmlReader.setFeature("http://xml.org/sax/features/validation", false);
+        	
             parser.parse(inputSource, new StartHandler(locationHandler, dtdMappings));
         } catch (Exception ex) {
             throw new XWorkException(ex);
