@@ -31,7 +31,8 @@ import com.opensymphony.xwork2.ActionContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.framework.util.FelixConstants;
-import org.apache.felix.main.AutoActivator;
+//import org.apache.felix.main.AutoActivator;
+import org.apache.felix.main.AutoProcessor;
 import org.apache.felix.main.Main;
 import org.apache.felix.shell.ShellService;
 import org.apache.struts2.StrutsStatics;
@@ -114,12 +115,20 @@ public class FelixOsgiHost implements OsgiHost {
         configProps.put(FelixConstants.FRAMEWORK_BEGINNING_STARTLEVEL, getServletContextParam("struts.osgi.runLevel", "3"));
 
         try {
+        	/*  felix 1.x launching mode --->needing upgrading
             List<BundleActivator> list = new ArrayList<BundleActivator>();
             list.add(new AutoActivator(configProps));
             configProps.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP, list);
-
             felix = new Felix(configProps);
             felix.start();
+            */
+        	
+        	//Tang Yong Added -->change into 4.x
+        	felix = new Felix(configProps);
+            felix.init();
+            AutoProcessor.process(configProps, felix.getBundleContext());
+            felix.start();
+        	
             if (LOG.isTraceEnabled())
                 LOG.trace("Apache Felix is running");
         }
@@ -149,7 +158,10 @@ public class FelixOsgiHost implements OsgiHost {
         List<String> bundleJarsLevel1 = new ArrayList<String>();
         bundleJarsLevel1.add(getJarUrl(ShellService.class));
         bundleJarsLevel1.add(getJarUrl(ServiceTracker.class));
-        configProps.put(AutoActivator.AUTO_START_PROP + ".1", StringUtils.join(bundleJarsLevel1, " "));
+        
+        //configProps.put(AutoActivator.AUTO_START_PROP + ".1", StringUtils.join(bundleJarsLevel1, " "));
+        //Tang Yong Added
+        configProps.put(AutoProcessor.AUTO_START_PROP + ".1", StringUtils.join(bundleJarsLevel1, " "));
 
         //get a list of directories under /bundles with numeric names (the runlevel)
         Map<String, String> runLevels = getRunLevelDirs("bundles");
@@ -157,13 +169,17 @@ public class FelixOsgiHost implements OsgiHost {
             //there are no run level dirs, search for bundles in that dir
             List<String> bundles = getBundlesInDir("bundles");
             if (!bundles.isEmpty())
-                configProps.put(AutoActivator.AUTO_START_PROP + ".2", StringUtils.join(bundles, " "));
+                //configProps.put(AutoActivator.AUTO_START_PROP + ".2", StringUtils.join(bundles, " "));
+                //Tang Yong Added
+                configProps.put(AutoProcessor.AUTO_START_PROP + ".2", StringUtils.join(bundles, " "));
         } else {
             for (String runLevel : runLevels.keySet()) {
                  if ("1".endsWith(runLevel))
                     throw new StrutsException("Run level dirs must be greater than 1. Run level 1 is reserved for the Felix bundles");
                 List<String> bundles = getBundlesInDir(runLevels.get(runLevel));
-                configProps.put(AutoActivator.AUTO_START_PROP + "." + runLevel, StringUtils.join(bundles, " "));
+                //TangYong Added
+                //configProps.put(AutoActivator.AUTO_START_PROP + "." + runLevel, StringUtils.join(bundles, " "));
+                configProps.put(AutoProcessor.AUTO_START_PROP + "." + runLevel, StringUtils.join(bundles, " "));
             }
         }
     }

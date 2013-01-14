@@ -69,5 +69,22 @@
             <artifactId>easymock</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <!--Updating felix 1.4.1 into 4.0.2-->
+        <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.main</artifactId>
+                <version>4.0.2</version>
+        </dependency>
+        <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.shell</artifactId>
+                <version>1.4.3</version>
+        </dependency>
+        <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.shell.tui</artifactId>
+                <version>1.4.1</version>
+        </dependency>
     </dependencies>
 </project>
