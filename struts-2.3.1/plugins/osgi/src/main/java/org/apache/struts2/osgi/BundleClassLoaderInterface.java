@@ -24,6 +24,7 @@ package org.apache.struts2.osgi;
 import com.opensymphony.xwork2.util.finder.ClassLoaderInterface;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Collections;
 import java.io.IOException;
@@ -44,6 +45,13 @@ public class BundleClassLoaderInterface implements ClassLoaderInterface {
     }
 
     public Enumeration<URL> getResources(String name) throws IOException {
+    	
+    	//TangYong Added, NPE happened while updating felix runtime to 4.0.2
+    	Collection<URL> coll = DefaultBundleAccessor.getInstance().loadResources(name, true);
+    	if (coll == null){
+    		return Collections.emptyEnumeration();
+    	}
+    	
         return Collections.enumeration(DefaultBundleAccessor.getInstance().loadResources(name, true));
     }
 

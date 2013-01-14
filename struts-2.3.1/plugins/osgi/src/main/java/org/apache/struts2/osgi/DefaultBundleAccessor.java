@@ -139,10 +139,14 @@ public class DefaultBundleAccessor implements BundleAccessor {
         if (bundle != null) {
             List<URL> resources = new ArrayList<URL>();
             Enumeration e = bundle.getResources(name);
-            while (e.hasMoreElements()) {
-                resources.add(translate ? OsgiUtil.translateBundleURLToJarURL((URL) e.nextElement(), getCurrentBundle()) : (URL) e.nextElement());
-            }
-            return resources;
+            
+            //Tang Yong Added, NPE happened while updating felix runtime to 4.0.2
+            if (e != null){
+            	 while (e.hasMoreElements()) {
+                     resources.add(translate ? OsgiUtil.translateBundleURLToJarURL((URL) e.nextElement(), getCurrentBundle()) : (URL) e.nextElement());
+                 }
+                 return resources;
+            }          
         }
 
         return null;
