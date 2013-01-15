@@ -12,6 +12,7 @@ Enviroment
 ------------
 
 * **Struts 2.3.1 Tag**
+
 Note: I will firstly extend 2.3.1 as an experiment, then rebase such extending into struts trunk.
 As a convenient, I will upload structs 2.3.1(struts2 OSGi plugin's source is included in struts) into this repo
 
@@ -39,6 +40,7 @@ As a convenient, I will also upload the demo into this repo
 Because glassfish v4 trunk's building requires jdk 7, I must use jdk7
 
 * **Maven 3.0.4**
+
 
 * **(Optional)Tomcat 7**
 
