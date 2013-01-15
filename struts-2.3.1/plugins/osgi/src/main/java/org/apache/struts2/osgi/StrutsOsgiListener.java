@@ -11,11 +11,21 @@ import javax.servlet.ServletContext;
  */
 public class StrutsOsgiListener implements ServletContextListener {
     public static final String OSGI_HOST = "__struts_osgi_host";
-    private FelixOsgiHost osgiHost;
+    //private FelixOsgiHost osgiHost;
+    //TangYong Added, using interface rather than implementation
+    private OsgiHost osgiHost;
+    
+    //TangYong Added
+    public static final String STRUTSOSGi_PLATFORM_KEY = "StrutsOSGi_Platform";
 
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
-        osgiHost = new FelixOsgiHost();
+        
+        //TangYong Added
+        String platform = servletContext.getInitParameter(STRUTSOSGi_PLATFORM_KEY);
+        //osgiHost = new FelixOsgiHost();
+        osgiHost = new OsgiHostFactory(platform).createOsgiHost();
+        
         servletContext.setAttribute(OSGI_HOST, osgiHost);
         try {
             osgiHost.init(servletContext);
