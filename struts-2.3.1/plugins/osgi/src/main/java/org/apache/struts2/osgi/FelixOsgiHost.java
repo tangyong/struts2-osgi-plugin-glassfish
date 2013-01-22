@@ -25,15 +25,21 @@ import com.opensymphony.xwork2.config.ConfigurationException;
 import com.opensymphony.xwork2.util.logging.Logger;
 import com.opensymphony.xwork2.util.logging.LoggerFactory;
 
-import org.apache.felix.framework.Felix;
-import org.apache.felix.framework.util.FelixConstants;
-import org.apache.felix.main.AutoProcessor;
-import org.apache.felix.main.Main;
-
 import org.osgi.framework.Constants;
+import org.osgi.framework.launch.FrameworkFactory;
 
 import javax.servlet.ServletContext;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceLoader;
+import java.util.Set;
 
 /**
  * Apache felix implementation of an OsgiHost
@@ -46,13 +52,20 @@ import java.util.Properties;
  */
 public class FelixOsgiHost extends BaseOsgiHost {
     private static final Logger LOG = LoggerFactory.getLogger(FelixOsgiHost.class);
+    
+    Properties configProps = null;
+    
+	/**
+     * Location inside the WAR file where framework jar is located.
+     */
+    private static final String LIB_DIR = "/WEB-INF/lib/";
 
     protected void startFelix() {
         //load properties from felix embedded file
-        Properties configProps = getProperties("default.properties");
+        configProps = getProperties("default.properties");
 
         // Copy framework properties from the system properties.
-        Main.copySystemProperties(configProps);
+        //Main.copySystemProperties(configProps);
         replaceSystemPackages(configProps);
 
         //struts, xwork and felix exported packages
@@ -72,14 +85,14 @@ public class FelixOsgiHost extends BaseOsgiHost {
         if ("true".equalsIgnoreCase(cleanBundleCache)) {
             if (LOG.isDebugEnabled())
                 LOG.debug("Clearing bundle cache");
-            configProps.put(FelixConstants.FRAMEWORK_STORAGE_CLEAN, FelixConstants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
+            configProps.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
         }
 
         //other properties
-        configProps.put(FelixConstants.SERVICE_URLHANDLERS_PROP, "false");
-        configProps.put(FelixConstants.LOG_LEVEL_PROP, getServletContextParam("struts.osgi.logLevel", "1"));
-        configProps.put(FelixConstants.BUNDLE_CLASSPATH, ".");
-        configProps.put(FelixConstants.FRAMEWORK_BEGINNING_STARTLEVEL, getServletContextParam("struts.osgi.runLevel", "3"));
+        configProps.put("felix.service.urlhandlers", "false");
+        configProps.put("felix.log.level", getServletContextParam("struts.osgi.logLevel", "1"));
+        configProps.put(Constants.BUNDLE_CLASSPATH, ".");
+        configProps.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, getServletContextParam("struts.osgi.runLevel", "3"));
 
         try {
         	/*  felix 1.x launching mode --->needing upgrading
@@ -90,10 +103,11 @@ public class FelixOsgiHost extends BaseOsgiHost {
             felix.start();
             */
         	
-        	//Tang Yong Added -->change into 4.x
-        	felix = new Felix(configProps);
+        	//Tang Yong Added -->change into felix 4.x
+        	final ClassLoader cl = createFrameworkLoader();
+        	FrameworkFactory frameworkFactory = ServiceLoader.load(FrameworkFactory.class, cl).iterator().next();
+        	felix = frameworkFactory.newFramework(getConfig());
             felix.init();
-            AutoProcessor.process(configProps, felix.getBundleContext());
             felix.start();
         	
             if (LOG.isTraceEnabled())
@@ -113,5 +127,36 @@ public class FelixOsgiHost extends BaseOsgiHost {
     public void init(ServletContext servletContext) {
         this.servletContext = servletContext;
         startFelix();
+    }
+    
+    private Map<String, String> getConfig() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (Object key : configProps.keySet()) {
+            map.put(key.toString(), (String) configProps.get(key));
+        }
+        return map;
+    }
+    
+    /**
+     * @return a class loader capable of finding OSGi frameworks.
+     */
+    private ClassLoader createFrameworkLoader() {
+        // We need to create a URLClassLoader for Felix to be able to attach framework extensions
+        List<URL> urls = new ArrayList<URL>();
+        Set<String> set = servletContext.getResourcePaths(LIB_DIR);
+        for (String s : set) {
+            if (s.endsWith(".jar")) {
+                try {
+                    urls.add(servletContext.getResource(s));
+                } catch (MalformedURLException e) {
+                	LOG.error("OSGiFramework.createFrameworkLoader got exception while trying to get URL for resource " + s, e);
+                }
+            }
+        }
+        
+        LOG.debug("OSGiFramework.createFrameworkLoader " + urls);
+        ClassLoader cl = new URLClassLoader(urls.toArray(new URL[urls.size()]), Thread.currentThread().getContextClassLoader());
+        LOG.debug("Classloader to find & load framework is: " + cl + " whose parent is: " + cl.getParent());
+        return cl;
     }
 }

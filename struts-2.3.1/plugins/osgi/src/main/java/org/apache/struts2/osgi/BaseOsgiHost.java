@@ -41,13 +41,12 @@ import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.felix.framework.Felix;
-import org.apache.felix.main.AutoProcessor;
 import org.apache.felix.shell.ShellService;
 import org.apache.struts2.StrutsException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.launch.Framework;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.opensymphony.xwork2.util.URLUtil;
@@ -60,7 +59,9 @@ import com.opensymphony.xwork2.util.logging.LoggerFactory;
  */
 public class BaseOsgiHost implements OsgiHost {
 	private static final Logger LOG = LoggerFactory.getLogger(BaseOsgiHost.class);
-	protected Felix felix;
+	//TangYong Added
+	//Using general interface rather than implementation class
+	protected Framework  felix;
 	protected static final Pattern versionPattern = Pattern.compile("([\\d])+[\\.-]");
 	protected ServletContext servletContext;
 
@@ -119,7 +120,7 @@ public class BaseOsgiHost implements OsgiHost {
         
         //configProps.put(AutoActivator.AUTO_START_PROP + ".1", StringUtils.join(bundleJarsLevel1, " "));
         //Tang Yong Added
-        configProps.put(AutoProcessor.AUTO_START_PROP + ".1", StringUtils.join(bundleJarsLevel1, " "));
+        configProps.put("felix.auto.start.1", StringUtils.join(bundleJarsLevel1, " "));
 
         //get a list of directories under /bundles with numeric names (the runlevel)
         Map<String, String> runLevels = getRunLevelDirs("bundles");
@@ -129,7 +130,7 @@ public class BaseOsgiHost implements OsgiHost {
             if (!bundles.isEmpty())
                 //configProps.put(AutoActivator.AUTO_START_PROP + ".2", StringUtils.join(bundles, " "));
                 //Tang Yong Added
-                configProps.put(AutoProcessor.AUTO_START_PROP + ".2", StringUtils.join(bundles, " "));
+                configProps.put("felix.auto.start.2", StringUtils.join(bundles, " "));
         } else {
             for (String runLevel : runLevels.keySet()) {
                  if ("1".endsWith(runLevel))
@@ -137,7 +138,7 @@ public class BaseOsgiHost implements OsgiHost {
                 List<String> bundles = getBundlesInDir(runLevels.get(runLevel));
                 //TangYong Added
                 //configProps.put(AutoActivator.AUTO_START_PROP + "." + runLevel, StringUtils.join(bundles, " "));
-                configProps.put(AutoProcessor.AUTO_START_PROP + "." + runLevel, StringUtils.join(bundles, " "));
+                configProps.put("felix.auto.start." + runLevel, StringUtils.join(bundles, " "));
             }
         }
     }
