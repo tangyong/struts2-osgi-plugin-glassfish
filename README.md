@@ -1,4 +1,4 @@
-struts2-osgi-plugin-glassfish
+﻿struts2-osgi-plugin-glassfish
 =============================
 
 Using Struts2 OSGi plugin with GlassFish
@@ -48,13 +48,37 @@ You can use tomcat 7 to see whether Struts2OSGi demo works.
 
 Using Way
 ---------------
+* **1 Building struts2-osgi-plugin**
 
-* **Glassfish deployment parameter setting**
+cd struts-2.3.1\plugins\osgi
 
-Please setting the following in demo's web.xml,
+mvn -DskipTests=true clean install
 
-<context-param>
-	    <param-name>StrutsOSGi_Platform</param-name>
-	    <param-value>Glassfish</param-value>
-</context-param>
+
+* **2 Glassfish deployment parameter setting**
+
+Please setting the following context-param in demo's web.xml,
+
+param-name : StrutsOSGi_Platform
+
+param-value : Glassfish
+
+Noting: if deploying tomcat, the above setting is not required.
+
+* **3 Demo building with glassfish**
+
+cd truts2-osgi-plugin-glassfish\Struts2OSGi-demo
+
+mvn -P glassfish clean install
+
+* **4 Deploy the demo under glassfish **
+
+asadmin start-domain domain1
+
+asadmin deploy osgi-2.3.1.war
+
+
+* **5 Access the demo **
+
+http://localhost:8080/osgi-2.3.1/osgi/admin/
 
