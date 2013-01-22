@@ -46,7 +46,15 @@ Because glassfish v4 trunk's building requires jdk 7, I must use jdk7
 
 You can use tomcat 7 to see whether Struts2OSGi demo works.
 
-Design
+Using Way
 ---------------
 
-ToDo
+* **Glassfish deployment parameter setting**
+
+Please setting the following in demo's web.xml,
+
+<context-param>
+	    <param-name>StrutsOSGi_Platform</param-name>
+	    <param-value>Glassfish</param-value>
+</context-param>
+
