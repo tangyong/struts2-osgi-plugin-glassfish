@@ -71,14 +71,14 @@ cd truts2-osgi-plugin-glassfish\Struts2OSGi-demo
 
 mvn -P glassfish clean install
 
-* **4 Deploy the demo under glassfish **
+* **4 Deploy the demo under glassfish**
 
 asadmin start-domain domain1
 
 asadmin deploy osgi-2.3.1.war
 
 
-* **5 Access the demo **
+* **5 Access the demo**
 
 http://localhost:8080/osgi-2.3.1/osgi/admin/
 
